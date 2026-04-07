@@ -54,7 +54,7 @@ Run this **once** before `terraform init`. The bucket must exist before Terrafor
 # Create bucket
 aws s3api create-bucket \
   --bucket licenses-plate-bucket \
-  --region us-east-1
+  --region us-west-2
 
 # Enable versioning
 aws s3api put-bucket-versioning \
@@ -93,7 +93,7 @@ Terraform uses this connection to link CodePipeline to GitHub. Run once.
 aws codestar-connections create-connection \
   --provider-type GitHub \
   --connection-name licenses-plate-github \
-  --region us-east-1
+  --region us-west-2
 ```
 
 Copy the `ConnectionArn` from the output. Then **approve it in the AWS Console** (this GitHub OAuth step cannot be done via CLI):
@@ -111,7 +111,7 @@ Verify the connection is AVAILABLE:
 ```bash
 aws codestar-connections get-connection \
   --connection-arn YOUR_CONNECTION_ARN \
-  --region us-east-1 \
+  --region us-west-2 \
   --query "Connection.ConnectionStatus"
 ```
 
@@ -124,7 +124,7 @@ Must return `"AVAILABLE"` before proceeding.
 Edit [terraform.tfvars](terraform.tfvars) and fill in your values:
 
 ```hcl
-aws_region  = "us-east-1"
+aws_region  = "us-west-2"
 environment = "dev"
 
 project_name     = "license-plate-validator"
@@ -136,11 +136,11 @@ desired_count    = 1
 vpc_cidr            = "10.0.0.0/16"
 allowed_cidr_blocks = ["0.0.0.0/0"]
 
-github_owner     = "YOUR_GITHUB_ORG_OR_USERNAME"
+github_owner     = "Joebaho"
 github_repo_name = "license-plate-lookup"
 github_branch    = "main"
 
-dockerhub_username = ""
+dockerhub_username = "joebaho2"
 
 # Paste the ARN from Step 2
 codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:ACCOUNT_ID:connection/YOUR-ID"
@@ -207,7 +207,7 @@ The pipeline triggers automatically on every push to `main`. For the first run, 
 ```bash
 aws codepipeline start-pipeline-execution \
   --name license-plate-validator-pipeline-dev \
-  --region us-east-1
+  --region us-west-2
 ```
 
 Or push a commit:
@@ -224,7 +224,7 @@ git push origin main
 ```bash
 aws codepipeline get-pipeline-state \
   --name license-plate-validator-pipeline-dev \
-  --region us-east-1 \
+  --region us-west-2 \
   --query "stageStates[*].{Stage:stageName,Status:latestExecution.status}" \
   --output table
 ```
@@ -238,14 +238,14 @@ Deploy    → Succeeded
 
 View build logs:
 ```bash
-aws logs tail /aws/codebuild/license-plate-validator-dev --follow --region us-east-1
+aws logs tail /aws/codebuild/license-plate-validator-dev --follow --region us-west-2
 ```
 
 ---
 
 ### Step 8 — Access the Application
 
-Open `https://license.cojocloudsolutions.com` in your browser.
+Open `https://plates.joebahocloud.com` in your browser.
 
 HTTP requests are automatically redirected to HTTPS.
 
@@ -320,11 +320,11 @@ terraform destroy -var-file="../terraform.tfvars"
 aws codestar-connections list-connections --region us-east-1
 aws codestar-connections delete-connection \
   --connection-arn YOUR_CONNECTION_ARN \
-  --region us-east-1
+  --region us-west-2
 
 # 3. Delete the Terraform state bucket (optional — keeps your state history)
-aws s3 rm s3://licenses-plate-bucket --recursive --region us-east-1
-aws s3api delete-bucket --bucket licenses-plate-bucket --region us-east-1
+aws s3 rm s3://licenses-plate-bucket --recursive --region us-west-2
+aws s3api delete-bucket --bucket licenses-plate-bucket --region us-west-2
 ```
 
 ---
