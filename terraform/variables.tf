@@ -2,7 +2,7 @@
 variable "aws_region" {
   description = "AWS region where resources will be created"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west-2"
 }
 # Project Configuration
 variable "project_name" {
@@ -91,7 +91,7 @@ variable "private_subnet_cidrs" {
 variable "availability_zones" {
   description = "List of availability zones"
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  default     = ["us-west-2a", "us-west-2b", "us-west-2c"]
 }
 
 variable "allowed_cidr_blocks" {
@@ -122,13 +122,13 @@ variable "ecr_scan_on_push" {
 variable "github_owner" {
   description = "GitHub repository owner"
   type        = string
-  default     = "cojocloud"
+  default     = "Joebaho"
 }
 
 variable "github_repo_name" {
   description = "GitHub repository name"
   type        = string
-  default     = "license-plate-lookup"
+  default     = "License-Plate-Validator"
 }
 
 variable "github_branch" {
@@ -171,7 +171,7 @@ variable "build_compute_type" {
 variable "dockerhub_username" {
   description = "DockerHub username for pushing images (leave empty to skip DockerHub)"
   type        = string
-  default     = ""
+  default     = "joebaho2"
 }
 
 variable "dockerhub_password" {
@@ -191,7 +191,7 @@ variable "create_dns" {
 variable "domain_name" {
   description = "Domain name for Route53 record"
   type        = string
-  default     = "cojocloud.com"
+  default     = "joebahocloud.com"
 }
 
 variable "subdomain" {

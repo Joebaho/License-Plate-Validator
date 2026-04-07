@@ -9,7 +9,7 @@ fi
 
 PROJECT_NAME="license-plate-validator"
 ENVIRONMENT="${ENVIRONMENT:-dev}"
-REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+REGION="${AWS_DEFAULT_REGION:-us-west-2}"
 TERRAFORM_DIR="terraform"
 BACKEND_BUCKET="${TF_BACKEND_BUCKET:-${PROJECT_NAME}-terraform-state}"
 BACKEND_KEY="${TF_BACKEND_KEY:-terraform.tfstate}"

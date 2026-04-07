@@ -36,7 +36,7 @@ print_warning() {
 # Configuration
 PROJECT_NAME="license-plate-validator"
 ENVIRONMENT=${ENVIRONMENT:-"dev"}
-REGION=${AWS_DEFAULT_REGION:-"us-east-1"}
+REGION=${AWS_DEFAULT_REGION:-"us-west-2"}
 TERRAFORM_DIR="terraform"
 BACKEND_BUCKET=${TF_BACKEND_BUCKET:-"${PROJECT_NAME}-terraform-state"}
 BACKEND_KEY=${TF_BACKEND_KEY:-"terraform.tfstate"}
@@ -77,7 +77,7 @@ ensure_backend() {
 
     if ! aws s3api head-bucket --bucket "$BACKEND_BUCKET" > /dev/null 2>&1; then
         print_message "Creating backend S3 bucket: $BACKEND_BUCKET"
-        if [ "$REGION" = "us-east-1" ]; then
+        if [ "$REGION" = "us-west-2" ]; then
             aws s3api create-bucket --bucket "$BACKEND_BUCKET" > /dev/null
         else
             aws s3api create-bucket \
