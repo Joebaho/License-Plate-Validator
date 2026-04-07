@@ -1,0 +1,33 @@
+
+# AWS Configuration
+aws_region  = "us-east-1"
+environment = "dev"
+
+# Project Configuration
+project_name     = "license-plate-validator"
+container_port   = 8080
+container_cpu    = 256
+container_memory = 512
+desired_count    = 1
+
+# Network Configuration
+vpc_cidr            = "10.0.0.0/16"
+allowed_cidr_blocks = ["0.0.0.0/0"]
+
+# GitHub Configuration
+github_owner     = "YOUR_GITHUB_ORG_OR_USERNAME"
+github_repo_name = "license-plate-lookup"
+github_branch    = "main"
+
+# DockerHub Configuration (leave empty to skip DockerHub push)
+dockerhub_username = ""
+
+# CodeStar Connection ARN (created once via AWS CLI, approved in console)
+# aws codestar-connections create-connection --provider-type GitHub --connection-name licenses-plate-github --region us-east-1
+codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:YOUR_ACCOUNT_ID:connection/YOUR-ID"
+
+# DNS & SSL Configuration
+create_dns     = true
+domain_name    = "YOUR_DOMAIN.com"
+subdomain      = "license"
+enable_alb_ssl = true

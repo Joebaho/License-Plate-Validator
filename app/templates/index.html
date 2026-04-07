@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>California License Plate Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .header {
+            background: linear-gradient(to right, #1a237e, #283593);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .plate-display {
+            background: #f5f5f5;
+            border: 3px solid #333;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #1a237e;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plate-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .result-value {
+            color: #333;
+        }
+
+        .valid {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .invalid {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .history-section {
+            margin-top: 30px;
+        }
+
+        .formats-section {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .formats-section h3 {
+            margin-bottom: 10px;
+            color: #1a237e;
+        }
+
+        .formats-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .history-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-plate {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .history-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-valid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-invalid {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .plate-display {
+                font-size: 1.8rem;
+                padding: 15px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 California License Plate Validator</h1>
+            <div class="subtitle">Validate any California license plate from 1914 to present</div>
+        </div>
+        
+        <div class="content">
+            <div class="plate-display" id="plateDisplay">7XYZ789</div>
+            
+            <div class="input-section">
+                <div class="input-group">
+                    <input type="text" id="plateInput" placeholder="Enter plate number (e.g., 1ABC123)" maxlength="10">
+                    <button onclick="validatePlate()">Validate</button>
+                </div>
+                <div class="input-group">
+                    <button onclick="getRandomPlate()" style="background: linear-gradient(to right, #10b981, #059669);">
+                        🎲 Get Random Plate
+                    </button>
+                    <button onclick="clearHistory()" style="background: linear-gradient(to right, #ef4444, #dc2626);">
+                        🗑️ Clear History
+                    </button>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                Validating plate...
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div class="result-item">
+                    <span class="result-label">Plate Number:</span>
+                    <span class="result-value" id="resultPlate">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Status:</span>
+                    <span class="result-value">
+                        <span id="resultStatus">-</span>
+                    </span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Format Type:</span>
+                    <span class="result-value" id="resultFormat">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Message:</span>
+                    <span class="result-value" id="resultMessage">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Characters:</span>
+                    <span class="result-value" id="resultChars">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Suggestion:</span>
+                    <span class="result-value" id="resultSuggestion">-</span>
+                </div>
+            </div>
+            
+            <div class="history-section">
+                <div class="history-title">Validation History</div>
+                <div class="history-list" id="historyList">
+                    <!-- History items will be added here -->
+                </div>
+            </div>
+
+            <div class="formats-section">
+                <h3>Historical Formats (1914-2000)</h3>
+                <ul id="historicalFormats"></ul>
+                <h3>Modern Formats (2001-Present)</h3>
+                <ul id="modernFormats"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let validationHistory = JSON.parse(localStorage.getItem('plateHistory')) || [];
+        
+        // Display initial random plate
+        updatePlateDisplay('7XYZ789');
+        
+        // Load history on page load
+        renderHistory();
+        loadFormats();
+        
+        function updatePlateDisplay(plate) {
+            document.getElementById('plateDisplay').textContent = plate;
+        }
+        
+        function validatePlate() {
+            const plateInput = document.getElementById('plateInput');
+            const plate = plateInput.value.trim().toUpperCase();
+            
+            if (!plate) {
+                alert('Please enter a plate number');
+                return;
+            }
+            
+            showLoading(true);
+            
+            fetch('/api/validate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ plate: plate })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                displayResult(data);
+                addToHistory(data);
+                plateInput.value = '';
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error:', error);
+                alert('Error validating plate');
+            });
+        }
+        
+        function getRandomPlate() {
+            showLoading(true);
+            
+            fetch('/api/random')
+                .then(response => response.json())
+                .then(data => {
+                    showLoading(false);
+                    updatePlateDisplay(data.plate);
+                    displayResult(data);
+                    addToHistory(data);
+                })
+                .catch(error => {
+                    showLoading(false);
+                    console.error('Error:', error);
+                    alert('Error getting random plate');
+                });
+        }
+        
+        function displayResult(data) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('show');
+            
+            document.getElementById('resultPlate').textContent = data.plate;
+            
+            const statusElement = document.getElementById('resultStatus');
+            statusElement.textContent = data.is_valid ? 'VALID' : 'INVALID';
+            statusElement.className = data.is_valid ? 'valid' : 'invalid';
+            
+            document.getElementById('resultFormat').textContent = data.format_type;
+            document.getElementById('resultMessage').textContent = data.message;
+            document.getElementById('resultChars').textContent = data.character_count;
+            const suggestions = data.suggestions && data.suggestions.length
+                ? data.suggestions.join(', ')
+                : (data.suggested_correction || 'None');
+            document.getElementById('resultSuggestion').textContent = suggestions;
+        }
+
+        function loadFormats() {
+            fetch('/api/formats')
+                .then(response => response.json())
+                .then(data => {
+                    const historical = data.formats.historical_formats_1914_2000 || [];
+                    const modern = data.formats.modern_formats_2001_present || [];
+                    document.getElementById('historicalFormats').innerHTML =
+                        historical.map(item => `<li>${item}</li>`).join('');
+                    document.getElementById('modernFormats').innerHTML =
+                        modern.map(item => `<li>${item}</li>`).join('');
+                })
+                .catch(error => {
+                    console.error('Error loading formats:', error);
+                });
+        }
+        
+        function addToHistory(data) {
+            const historyItem = {
+                plate: data.plate,
+                isValid: data.is_valid,
+                format: data.format_type,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            validationHistory.unshift(historyItem);
+            if (validationHistory.length > 10) {
+                validationHistory = validationHistory.slice(0, 10);
+            }
+            
+            localStorage.setItem('plateHistory', JSON.stringify(validationHistory));
+            renderHistory();
+        }
+        
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            
+            validationHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                
+                div.innerHTML = `
+                    <span class="history-plate">${item.plate}</span>
+                    <span class="history-status ${item.isValid ? 'status-valid' : 'status-invalid'}">
+                        ${item.isValid ? '✓ Valid' : '✗ Invalid'}
+                    </span>
+                `;
+                
+                historyList.appendChild(div);
+            });
+        }
+        
+        function clearHistory() {
+            if (confirm('Clear all validation history?')) {
+                validationHistory = [];
+                localStorage.removeItem('plateHistory');
+                renderHistory();
+            }
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('show', show);
+        }
+        
+        // Enter key support
+        document.getElementById('plateInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                validatePlate();
+            }
+        });
+    </script>
+</body>
+</html>
