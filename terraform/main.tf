@@ -329,6 +329,7 @@ resource "aws_route53_record" "app" {
   zone_id = data.aws_route53_zone.main[0].zone_id
   name    = "${var.subdomain}.${var.domain_name}"
   type    = "A"
+  allow_overwrite = true
 
   alias {
     name                   = module.ecs.alb_dns_name
