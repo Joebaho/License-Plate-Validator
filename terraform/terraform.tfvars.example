@@ -1,0 +1,30 @@
+# AWS Configuration
+aws_region  = "us-west-2"
+environment = "dev"
+
+# Project Configuration
+project_name     = "license-plate-validator"
+container_port   = 8080
+container_cpu    = 256
+container_memory = 512
+desired_count    = 1
+
+# Network Configuration
+vpc_cidr            = "10.0.0.0/16"
+allowed_cidr_blocks = ["0.0.0.0/0"]
+
+# GitHub Configuration
+github_owner     = "YOUR_GITHUB_USERNAME"
+github_repo_name = "License-Plate-Validator"
+github_branch    = "main"
+github_token     = ""
+
+# DockerHub Configuration
+dockerhub_username = "YOUR_DOCKERHUB_USERNAME"
+dockerhub_password = ""
+
+# AWS Certificate Manager
+certificate_arn = "arn:aws:acm:us-east-1:YOUR_ACCOUNT_ID:certificate/YOUR-CERTIFICATE-ID"
+
+# CodeStar Connection ARN
+codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:YOUR_ACCOUNT_ID:connection/YOUR-ID"

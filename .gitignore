@@ -1,0 +1,10 @@
+.DS_Store
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+terraform.tfvars.*
+terraform/terraform.tfvars
+terraform/terraform.tfvars.*
+!terraform/terraform.tfvars.example

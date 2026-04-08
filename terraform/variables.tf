@@ -178,7 +178,6 @@ variable "dockerhub_password" {
   description = "DockerHub password or access token"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
 # DNS Configuration (Optional)
@@ -223,7 +222,6 @@ variable "enable_alb_ssl" {
 variable "certificate_arn" {
   description = "ARN of SSL certificate for ALB"
   type        = string
-  default     = ""
 }
 
 # Autoscaling Configuration
