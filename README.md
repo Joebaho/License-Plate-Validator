@@ -52,18 +52,18 @@ Run this **once** before `terraform init`. The bucket must exist before Terrafor
 ```bash
 # Create bucket
 aws s3api create-bucket \
-  --bucket licenses-plate-bucket \
+  --bucket validator-license-bucket01 \
   --region us-west-2\
   --create-bucket-configuration LocationConstraint=us-west-2
 
 # Enable versioning
 aws s3api put-bucket-versioning \
-  --bucket licenses-plate-bucket \
+  --bucket validator-license-bucket01 \
   --versioning-configuration Status=Enabled
 
 # Enable encryption
 aws s3api put-bucket-encryption \
-  --bucket licenses-plate-bucket \
+  --bucket validator-license-bucket01 \
   --server-side-encryption-configuration '{
     "Rules": [{
       "ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}
@@ -72,15 +72,15 @@ aws s3api put-bucket-encryption \
 
 # Block public access
 aws s3api put-public-access-block \
-  --bucket licenses-plate-bucket \
+  --bucket validator-license-bucket01 \
   --public-access-block-configuration \
     "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
 ```
 
 Verify:
 ```bash
-aws s3api get-bucket-versioning --bucket licenses-plate-bucket
-aws s3api get-bucket-encryption --bucket licenses-plate-bucket
+aws s3api get-bucket-versioning --bucket validator-license-bucket01
+aws s3api get-bucket-encryption --bucket validator-license-bucket01
 ```
 
 ---
@@ -345,8 +345,8 @@ aws codestar-connections delete-connection \
   --region us-west-2
 
 # 3. Delete the Terraform state bucket (optional — keeps your state history)
-aws s3 rm s3://licenses-plate-bucket --recursive --region us-west-2
-aws s3api delete-bucket --bucket licenses-plate-bucket --region us-west-2
+aws s3 rm s3://validator-license-bucket01 --recursive --region us-west-2
+aws s3api delete-bucket --bucket validator-license-bucket01 --region us-west-2
 ```
 
 ---
@@ -395,7 +395,7 @@ aws s3api delete-bucket --bucket licenses-plate-bucket --region us-west-2
 - The IAM user needs the `PassConnection` permission — see Step 4 above
 
 **Terraform init fails: S3 backend not found**
-- The `licenses-plate-bucket` must exist before running `terraform init`
+- The `validator-license-bucket01` must exist before running `terraform init`
 - Run the bucket creation commands from Step 1
 
 ---
