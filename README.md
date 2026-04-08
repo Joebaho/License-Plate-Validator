@@ -48,13 +48,13 @@ GitHub ──► CodePipeline ──► CodeBuild ──► ECR ──► ECS Fa
 
 Run this **once** before `terraform init`. The bucket must exist before Terraform can use it as a backend.
 
-> **Note:** `us-east-1` does not accept `LocationConstraint` — omit it for this region.
 
 ```bash
 # Create bucket
 aws s3api create-bucket \
   --bucket licenses-plate-bucket \
-  --region us-west-2
+  --region us-west-2\
+  --create-bucket-configuration LocationConstraint=us-west-2
 
 # Enable versioning
 aws s3api put-bucket-versioning \
