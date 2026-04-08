@@ -23,8 +23,14 @@ github_token     = ""
 dockerhub_username = "YOUR_DOCKERHUB_USERNAME"
 dockerhub_password = ""
 
-# AWS Certificate Manager
-certificate_arn = "arn:aws:acm:us-east-1:YOUR_ACCOUNT_ID:certificate/YOUR-CERTIFICATE-ID"
+# DNS & HTTPS Configuration
+create_dns     = true
+domain_name    = "joebahocloud.com"
+subdomain      = "plates"
+enable_alb_ssl = true
+
+# AWS Certificate Manager (must be in the same region as the ALB, us-west-2 by default)
+certificate_arn = "arn:aws:acm:us-west-2:YOUR_ACCOUNT_ID:certificate/YOUR-CERTIFICATE-ID"
 
 # CodeStar Connection ARN
-codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:YOUR_ACCOUNT_ID:connection/YOUR-ID"
+codestar_connection_arn = "arn:aws:codestar-connections:us-west-2:YOUR_ACCOUNT_ID:connection/YOUR-ID"

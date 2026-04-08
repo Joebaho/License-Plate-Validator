@@ -149,12 +149,11 @@ github_branch    = "main"
 dockerhub_username = "joebaho2"
 dockerhub_password = ""
 
-enable_alb_ssl  = false
-certificate_arn = ""
-
-create_dns  = false
-domain_name = "joebahocloud.com"
-subdomain   = "plates"
+enable_alb_ssl = true
+create_dns     = true
+domain_name    = "joebahocloud.com"
+subdomain      = "plates"
+certificate_arn = "arn:aws:acm:us-west-2:ACCOUNT_ID:certificate/YOUR-CERTIFICATE-ID"
 
 # Paste the ARN from Step 2
 codestar_connection_arn = "arn:aws:codestar-connections:us-west-2:ACCOUNT_ID:connection/YOUR-ID"
@@ -163,8 +162,9 @@ codestar_connection_arn = "arn:aws:codestar-connections:us-west-2:ACCOUNT_ID:con
 Notes:
 - Keep `terraform/terraform.tfvars` local only. It is gitignored and should never be committed.
 - Leave `dockerhub_password = ""` if you are not pushing to Docker Hub.
-- Leave `certificate_arn = ""` only when `enable_alb_ssl = false`.
-- Set `create_dns = true` only if you already have a matching Route53 hosted zone.
+- The ACM certificate must be in the same region as the ALB, which is `us-west-2` in this project.
+- Set `create_dns = true` only if you already have a matching public Route53 hosted zone.
+- If you already have a valid ACM certificate in `us-west-2`, provide its ARN and Terraform will reuse it instead of creating a new certificate.
 
 ---
 

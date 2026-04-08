@@ -231,7 +231,7 @@ module "ecs" {
   scaling_memory_threshold  = var.scaling_memory_threshold
   enable_container_insights = var.enable_container_insights
   enable_alb_ssl            = var.enable_alb_ssl
-  certificate_arn           = var.create_dns && var.domain_name != "" ? aws_acm_certificate_validation.app[0].certificate_arn : var.certificate_arn
+  certificate_arn           = var.certificate_arn != "" ? var.certificate_arn : (var.create_dns && var.domain_name != "" ? aws_acm_certificate_validation.app[0].certificate_arn : "")
   allowed_cidr_blocks       = var.allowed_cidr_blocks
   security_group_ids = {
     alb = module.networking.security_group_ids.alb
@@ -284,7 +284,7 @@ data "aws_route53_zone" "main" {
 
 # ACM Certificate
 resource "aws_acm_certificate" "app" {
-  count             = var.create_dns && var.domain_name != "" ? 1 : 0
+  count             = var.create_dns && var.domain_name != "" && var.certificate_arn == "" ? 1 : 0
   domain_name       = "${var.subdomain}.${var.domain_name}"
   validation_method = "DNS"
 
@@ -299,7 +299,7 @@ resource "aws_acm_certificate" "app" {
 
 # Route53 records for ACM DNS validation
 resource "aws_route53_record" "cert_validation" {
-  for_each = var.create_dns && var.domain_name != "" ? {
+  for_each = var.create_dns && var.domain_name != "" && var.certificate_arn == "" ? {
     for dvo in aws_acm_certificate.app[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
@@ -317,7 +317,7 @@ resource "aws_route53_record" "cert_validation" {
 
 # Wait for certificate to be issued
 resource "aws_acm_certificate_validation" "app" {
-  count                   = var.create_dns && var.domain_name != "" ? 1 : 0
+  count                   = var.create_dns && var.domain_name != "" && var.certificate_arn == "" ? 1 : 0
   certificate_arn         = aws_acm_certificate.app[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
