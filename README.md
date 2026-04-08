@@ -100,7 +100,7 @@ Copy the `ConnectionArn` from the output. Then **approve it in the AWS Console**
 
 > AWS Console → Developer Tools → Connections → `license-plate-github` → **Update pending connection** → authorize with GitHub
 
-**Critical:** During the GitHub authorization flow, grant access to the **organization** that owns the repository (e.g. `cojocloud`). If you skip this, pushes will not trigger the pipeline.
+**Critical:** During the GitHub authorization flow, grant access to the GitHub user or organization that owns the repository. If you skip this, pushes will not trigger the pipeline.
 
 To grant org access after the fact:
 1. Go to `github.com/settings/apps/authorizations`
@@ -119,9 +119,15 @@ Must return `"AVAILABLE"` before proceeding.
 
 ---
 
-### Step 3 — Configure terraform.tfvars
+### Step 3 — Configure Terraform Variables
 
-Edit [terraform.tfvars](terraform.tfvars) and fill in your values:
+Create a local variables file from the committed example:
+
+```bash
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+```
+
+Then edit `terraform/terraform.tfvars` and fill in your values:
 
 ```hcl
 aws_region  = "us-west-2"
@@ -137,14 +143,28 @@ vpc_cidr            = "10.0.0.0/16"
 allowed_cidr_blocks = ["0.0.0.0/0"]
 
 github_owner     = "Joebaho"
-github_repo_name = "license-plate-lookup"
+github_repo_name = "License-Plate-Validator"
 github_branch    = "main"
 
 dockerhub_username = "joebaho2"
+dockerhub_password = ""
+
+enable_alb_ssl  = false
+certificate_arn = ""
+
+create_dns  = false
+domain_name = "joebahocloud.com"
+subdomain   = "plates"
 
 # Paste the ARN from Step 2
-codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:ACCOUNT_ID:connection/YOUR-ID"
+codestar_connection_arn = "arn:aws:codestar-connections:us-west-2:ACCOUNT_ID:connection/YOUR-ID"
 ```
+
+Notes:
+- Keep `terraform/terraform.tfvars` local only. It is gitignored and should never be committed.
+- Leave `dockerhub_password = ""` if you are not pushing to Docker Hub.
+- Leave `certificate_arn = ""` only when `enable_alb_ssl = false`.
+- Set `create_dns = true` only if you already have a matching Route53 hosted zone.
 
 ---
 
@@ -182,10 +202,10 @@ cd terraform
 terraform init
 
 # Preview what will be created
-terraform plan -var-file="../terraform.tfvars"
+terraform plan -var-file="terraform.tfvars"
 
 # Deploy all infrastructure (~10-15 minutes)
-terraform apply -var-file="../terraform.tfvars"
+terraform apply -var-file="terraform.tfvars"
 ```
 
 Type `yes` when prompted.
@@ -245,15 +265,17 @@ aws logs tail /aws/codebuild/license-plate-validator-dev --follow --region us-we
 
 ### Step 8 — Access the Application
 
-Open `https://plates.joebahocloud.com` in your browser.
+If `create_dns = true`, `enable_alb_ssl = true`, and your Route53 plus ACM configuration is valid, open:
 
-HTTP requests are automatically redirected to HTTPS.
+`https://plates.joebahocloud.com`
 
-If you are not using a custom domain, you can get the ALB DNS name directly:
+If you are not using a custom domain, get the ALB DNS name directly:
 
 ```bash
 terraform -chdir=terraform output alb_dns_name
 ```
+
+By default, the starter configuration deploys without DNS or SSL, so the ALB endpoint is the expected first access path.
 
 Available endpoints:
 
@@ -314,10 +336,10 @@ Run in this order to avoid dependency errors:
 # 1. Destroy all Terraform-managed infrastructure
 # (VPC, ECS, ALB, ECR, CodePipeline, CodeBuild, ACM cert, Route53 records, S3 artifacts bucket)
 cd terraform
-terraform destroy -var-file="../terraform.tfvars"
+terraform destroy -var-file="terraform.tfvars"
 
 # 2. Delete the CodeStar connection (created outside Terraform)
-aws codestar-connections list-connections --region us-east-1
+aws codestar-connections list-connections --region us-west-2
 aws codestar-connections delete-connection \
   --connection-arn YOUR_CONNECTION_ARN \
   --region us-west-2
