@@ -289,7 +289,7 @@ resource "aws_codebuild_project" "main" {
       for_each = var.dockerhub_password != "" ? [1] : []
       content {
         name  = "DOCKERHUB_PASSWORD"
-        value = var.dockerhub_password
+        value = "/${var.project_name}/${var.environment}/dockerhub/password"
         type  = "PARAMETER_STORE"
       }
     }
